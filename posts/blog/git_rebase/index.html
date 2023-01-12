@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>如何使用git rebase合并冲突 | xiaoli&#39;s Blog</title>
+<meta name="keywords" content="git, rebase master">
+<meta name="description" content="会使用rebase master后我耀武扬威！">
+<meta name="author" content="
+作者:&nbsp;xiaoli">
+<link rel="canonical" href="https://zerlina-ysl.github.io/posts/blog/git_rebase/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.eaffe99c2d3a0b3cb0e8d912106e54ea42a5c58f5629fe96420008b914c3ab25.css" integrity="sha256-6v/pnC06Czyw6NkSEG5U6kKlxY9WKf6WQgAIuRTDqyU=" rel="preload stylesheet" as="style">
+<script defer crossorigin="anonymous" src="/assets/js/highlight.f413e19d0714851f6474e7ee9632408e58ac146fbdbe62747134bea2fa3415e0.js" integrity="sha256-9BPhnQcUhR9kdOfuljJAjlisFG&#43;9vmJ0cTS&#43;ovo0FeA="
+        onload="hljs.initHighlightingOnLoad();"></script>
+<link rel="icon" href="https://zerlina-ysl.github.io/img/r.jpeg">
+<link rel="icon" type="image/png" sizes="16x16" href="https://zerlina-ysl.github.io/img/r.jpeg">
+<link rel="icon" type="image/png" sizes="32x32" href="https://zerlina-ysl.github.io/img/r.jpeg">
+<link rel="apple-touch-icon" href="https://zerlina-ysl.github.io/img/r.jpeg">
+<link rel="mask-icon" href="https://zerlina-ysl.github.io/img/r.jpeg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --hljs-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = ""; 
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<link rel='stylesheet' href='https://cdn.staticfile.org/hack-font/3.3.0/web/hack.min.css'>
+<meta property="og:title" content="如何使用git rebase合并冲突" />
+<meta property="og:description" content="会使用rebase master后我耀武扬威！" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://zerlina-ysl.github.io/posts/blog/git_rebase/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2022-11-14T21:05:04&#43;08:00" />
+<meta property="article:modified_time" content="2022-11-14T21:05:04&#43;08:00" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="如何使用git rebase合并冲突"/>
+<meta name="twitter:description" content="会使用rebase master后我耀武扬威！"/>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "📚 文章",
+      "item": "https://zerlina-ysl.github.io/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "🧱 blog",
+      "item": "https://zerlina-ysl.github.io/posts/blog/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "如何使用git rebase合并冲突",
+      "item": "https://zerlina-ysl.github.io/posts/blog/git_rebase/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "如何使用git rebase合并冲突",
+  "name": "如何使用git rebase合并冲突",
+  "description": "会使用rebase master后我耀武扬威！",
+  "keywords": [
+    "git", "rebase master"
+  ],
+  "articleBody": "｜ 今天在公司使用git rebase master解冲突失败，同事悉心教我，下来再研究一下。\ngit rebase master 0. 回退分支 这一步可以跳过，只是我错误rebase操作导致目前分支代码不正常，需要先回滚代码。\ngit log commit b77bd104afddea0cb0c861dd03ecd3350848xxxx (HEAD -\u003e i18n_author_guide, origin/i18n_author_guide) Author: lishenyu Date: Mon Nov 14 20:16:42 2022 +0800 fix: rebase master commit 1afc280edcc522f1749112476a0406ba0683xxxx Author: zheng Date: Wed Nov 9 14:14:16 2022 +0800 fix: idl更新 可以看到，我需要通过logID回退到历史版本。\ngit reset --hard 1afc280edcc522f1749112476a0406ba0683xxxx HEAD is now at 1afc280 fix: idl更新 git reset实现回退操作。首先需要明确三个区域：工作区/ 暂存区/ Repository。\n我们对工作区中的代码进行修改，使用git add .将修改的所有代码添加到暂存区，使用git push将暂存区中的代码提交到远程的Repository。 –hard 撤销工作区所有未提交修改，将暂存区和工作区都回到上一个版本，删除之前的提交信息 –soft 保留工作目录中的内容，把新内容放置在暂存区。 –mixed 所有修改放在工作目录 ⚠️：git reset后再次push会引发冲突，需要push -f 1. git rebase master 确保master分支已于远程同步，使用git rebase master，解决冲突。\n对于冲突的解决需要看清楚，如果是业务冲突需要手动合并，如果是框架生成的代码冲突需要按照master的代码来。\n如果rebase时存在冲突，可以使用goland的可视化工具，git-\u003eresolve conflicts，出现此次rebase冲突的代码，可以直接点击进入响应文件进行冲突的手动解决。\n左边是自己分支的代码，右边是要rebase的分支的代码，中间是修改后的代码。根据需要accept left或accept right。点击apply后自动实现 git add .,下一步可以直接git rebase --continue。 2. git push -f 当解决完所有的冲突成功合并后，需要使用push -f强制推到远端。\n需要注意：git rebase后提交，相当于将自己的分支提交到了master分支后面，\n用下面两个动图可能更加清晰：\nmerge: rebase: git rebase的其他指令 同时，在使用rebase master合并分支的时候，有时也会看到终端提示git rebase --continue\\ git rebase --abort \\ git rebase --skip\n前两个我们都熟悉，第一个是解决冲突后的继续合并，第二个是放弃当前的所有合并还原代码。那么第三个呢？因为我就是使用第三个命令后所以屡屡丢代码～\n对于git rebase 的过程，其实分两步。 产生master分支的备份，放在临时分支 在临时分支上应用当前分支的每一次提交，如果出现冲突就会终止\n而这个git rebase –skip，其实就是跳过某次提交，所以合并到最后肯定会丢代码。😅慎用该指令哈。 参考 git reset: https://www.jianshu.com/p/c2ec5f06cf1a\nresolve conflicts: https://www.jetbrains.com/help/go/resolve-conflicts.html\nrebase和merge: https://waynerv.com/posts/git-rebase-intro/\n",
+  "wordCount" : "1037",
+  "inLanguage": "en",
+  "datePublished": "2022-11-14T21:05:04+08:00",
+  "dateModified": "2022-11-14T21:05:04+08:00",
+  "author":[{
+    "@type": "Person",
+    "name": "xiaoli"
+  }],
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://zerlina-ysl.github.io/posts/blog/git_rebase/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "xiaoli's Blog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://zerlina-ysl.github.io/img/r.jpeg"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+
+
+<script async src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://zerlina-ysl.github.io/" accesskey="h" title="xiaoli&#39;s Blog (Alt + H)">
+            <img src="https://zerlina-ysl.github.io/img/e.jpeg" alt="logo" aria-label="logo"
+                 height="35">xiaoli&#39;s Blog</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://zerlina-ysl.github.io/search" title="🔍 (Alt &#43; /)" accesskey=/>
+                <span>🔍</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://zerlina-ysl.github.io/" title="🏠">
+                <span>🏠</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://zerlina-ysl.github.io/tags" title="🧩">
+                <span>🧩</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://zerlina-ysl.github.io/archives/" title="⏱️">
+                <span>⏱️</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://zerlina-ysl.github.io/about" title="🙋🏻‍♂️">
+                <span>🙋🏻‍♂️</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main page">
+<article class="post-single">
+    <div id="single-content">
+        <header class="post-header">
+            <div class="breadcrumbs"><a href="https://zerlina-ysl.github.io/">主页</a>&nbsp;»&nbsp;<a href="https://zerlina-ysl.github.io/posts/">📚 文章</a>&nbsp;»&nbsp;<a href="https://zerlina-ysl.github.io/posts/blog/">🧱 blog</a></div>
+            <h1 class="post-title">
+                如何使用git rebase合并冲突
+            </h1>
+            <div class="post-description">
+                会使用rebase master后我耀武扬威！
+            </div>
+            <div class="post-meta">
+
+
+
+
+
+创建:&nbsp;<span title='2022-11-14 21:05:04 +0800 CST'>2022-11-14</span>&nbsp;|&nbsp;更新:&nbsp;2022-11-14&nbsp;|&nbsp;字数:&nbsp;1037字&nbsp;|&nbsp;时长:&nbsp;3分钟&nbsp;|&nbsp;
+作者:&nbsp;xiaoli
+
+
+
+                &nbsp;|&nbsp;标签: &nbsp;
+                <ul class="post-tags-meta">
+                    <a href="https://zerlina-ysl.github.io/tags/git/">git</a>
+                </ul>
+
+                
+                <span id="busuanzi_container_page_pv">
+                &nbsp;| 访问: <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+</div>
+        </header> 
+        <aside id="toc-container" class="toc-container wide">
+    <div class="toc">
+        <details  open>
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">文章目录</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#git-rebase-master" aria-label="git rebase master">git rebase master</a><ul>
+                        <ul>
+                        
+                <li>
+                    <a href="#0--%e5%9b%9e%e9%80%80%e5%88%86%e6%94%af" aria-label="0.  回退分支">0.  回退分支</a></li>
+                <li>
+                    <a href="#1-git-rebase-master" aria-label="1. git rebase master">1. git rebase master</a></li>
+                <li>
+                    <a href="#2-git-push--f" aria-label="2. git push -f">2. git push -f</a></li></ul>
+                    
+                <li>
+                    <a href="#git-rebase%e7%9a%84%e5%85%b6%e4%bb%96%e6%8c%87%e4%bb%a4" aria-label="git rebase的其他指令">git rebase的其他指令</a></li></ul>
+                </li>
+                <li>
+                    <a href="#%e5%8f%82%e8%80%83" aria-label="参考">参考</a>
+                </li>
+            </ul>
+        </div>
+        </details>
+    </div>
+</aside>
+<script>
+    let activeElement;
+    let elements;
+    window.addEventListener('DOMContentLoaded', function (event) {
+        checkTocPosition();
+
+        elements = document.querySelectorAll('h1[id],h2[id],h3[id],h4[id],h5[id],h6[id]');
+        
+        activeElement = elements[0];
+        const id = encodeURI(activeElement.getAttribute('id')).toLowerCase();
+        document.querySelector(`.inner ul li a[href="#${id}"]`).classList.add('active');
+    }, false);
+
+    window.addEventListener('resize', function(event) {
+        checkTocPosition();
+    }, false);
+
+    window.addEventListener('scroll', () => {
+        
+        activeElement = Array.from(elements).find((element) => {
+            if ((getOffsetTop(element) - window.pageYOffset) > 0 &&
+                (getOffsetTop(element) - window.pageYOffset) < window.innerHeight/2) {
+                return element;
+            }
+        }) || activeElement
+
+        elements.forEach(element => {
+            const id = encodeURI(element.getAttribute('id')).toLowerCase();
+            if (element === activeElement){
+                document.querySelector(`.inner ul li a[href="#${id}"]`).classList.add('active');
+            } else {
+                document.querySelector(`.inner ul li a[href="#${id}"]`).classList.remove('active');
+            }
+        })
+    }, false);
+
+    const main = parseInt(getComputedStyle(document.body).getPropertyValue('--article-width'), 10);
+    const toc = parseInt(getComputedStyle(document.body).getPropertyValue('--toc-width'), 10);
+    const gap = parseInt(getComputedStyle(document.body).getPropertyValue('--gap'), 10);
+
+    function checkTocPosition() {
+        const width = document.body.scrollWidth;
+
+        if (width - main - (toc * 2) - (gap * 4) > 0) {
+            document.getElementById("toc-container").classList.add("wide");
+        } else {
+            document.getElementById("toc-container").classList.remove("wide");
+        }
+    }
+
+    function getOffsetTop(element) {
+        if (!element.getClientRects().length) {
+            return 0;
+        }
+        let rect = element.getBoundingClientRect();
+        let win = element.ownerDocument.defaultView;
+        return rect.top + win.pageYOffset;
+    }
+</script>
+        
+        <div class="post-content"><p>｜ 今天在公司使用git rebase master解冲突失败，同事悉心教我，下来再研究一下。</p>
+<h2 id="git-rebase-master">git rebase master<a hidden class="anchor" aria-hidden="true" href="#git-rebase-master">#</a></h2>
+<h4 id="0--回退分支">0.  回退分支<a hidden class="anchor" aria-hidden="true" href="#0--回退分支">#</a></h4>
+<p><strong>这一步可以跳过</strong>，只是我错误rebase操作导致目前分支代码不正常，需要先回滚代码。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>git log
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>commit b77bd104afddea0cb0c861dd03ecd3350848xxxx <span style="color:#f92672">(</span>HEAD -&gt; i18n_author_guide, origin/i18n_author_guide<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>Author: lishenyu &lt;lishenyu@xx.com&gt;
+</span></span><span style="display:flex;"><span>Date:   Mon Nov <span style="color:#ae81ff">14</span> 20:16:42 <span style="color:#ae81ff">2022</span> +0800
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    fix: rebase master
+</span></span><span style="display:flex;"><span>commit 1afc280edcc522f1749112476a0406ba0683xxxx
+</span></span><span style="display:flex;"><span>Author: zheng &lt;zheng@xx.com&gt;
+</span></span><span style="display:flex;"><span>Date:   Wed Nov <span style="color:#ae81ff">9</span> 14:14:16 <span style="color:#ae81ff">2022</span> +0800
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    fix: idl更新
+</span></span></code></pre></div><p>可以看到，我需要通过logID回退到历史版本。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>git reset --hard 1afc280edcc522f1749112476a0406ba0683xxxx                                            
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>HEAD is now at 1afc280 fix: idl更新
+</span></span></code></pre></div><p><code>git reset</code>实现回退操作。首先需要明确三个区域：工作区/ 暂存区/ Repository。<br>
+我们对工作区中的代码进行修改，使用git add .将修改的所有代码添加到暂存区，使用git push将暂存区中的代码提交到远程的Repository。
+<img loading="lazy" src="area.webp" alt=""  />
+</p>
+<ul>
+<li>&ndash;hard 撤销<strong>工作区</strong>所有未提交修改，将<strong>暂存区</strong>和<strong>工作区</strong>都回到上一个版本，删除之前的提交信息</li>
+<li>&ndash;soft  保留<strong>工作目录</strong>中的内容，把新内容放置在<strong>暂存区</strong>。</li>
+<li>&ndash;mixed  所有修改放在工作目录
+⚠️：git reset后再次push会引发冲突，需要push -f</li>
+</ul>
+<h4 id="1-git-rebase-master">1. git rebase master<a hidden class="anchor" aria-hidden="true" href="#1-git-rebase-master">#</a></h4>
+<p>确保master分支已于远程同步，使用<code>git rebase master</code>，解决冲突。<br>
+对于冲突的解决需要看清楚，如果是业务冲突需要手动合并，如果是框架生成的代码冲突需要按照master的代码来。<br>
+如果rebase时存在冲突，可以使用goland的可视化工具，git-&gt;resolve conflicts，出现此次rebase冲突的代码，可以直接点击进入响应文件进行冲突的手动解决。<br>
+<img loading="lazy" src="merge_conflicts1.png" alt=""  />
+</p>
+<p>左边是自己分支的代码，右边是要rebase的分支的代码，中间是修改后的代码。根据需要accept left或accept right。点击apply后自动实现 git add .,下一步可以直接<code>git rebase --continue</code>。
+<img loading="lazy" src="resolve_conflicts.png" alt=""  />
+</p>
+<h4 id="2-git-push--f">2. git push -f<a hidden class="anchor" aria-hidden="true" href="#2-git-push--f">#</a></h4>
+<p>当解决完所有的冲突成功合并后，需要使用push -f强制推到远端。<br>
+需要注意：git rebase后提交，相当于将自己的分支提交到了master分支后面，<br>
+用下面两个动图可能更加清晰：<br>
+merge:
+<img loading="lazy" src="rebase.gif" alt=""  />
+
+rebase:
+<img loading="lazy" src="master.gif" alt=""  />
+</p>
+<h3 id="git-rebase的其他指令">git rebase的其他指令<a hidden class="anchor" aria-hidden="true" href="#git-rebase的其他指令">#</a></h3>
+<p>同时，在使用rebase master合并分支的时候，有时也会看到终端提示<code>git rebase --continue</code>\ <code>git rebase --abort</code> \ <code>git rebase --skip</code></p>
+<ul>
+<li>前两个我们都熟悉，第一个是解决冲突后的继续合并，第二个是放弃当前的所有合并还原代码。那么第三个呢？因为我就是使用第三个命令后所以屡屡丢代码～<br>
+对于git rebase 的过程，其实分两步。</li>
+</ul>
+<ol>
+<li>产生master分支的备份，放在临时分支</li>
+<li>在临时分支上应用当前分支的每一次<strong>提交</strong>，如果出现冲突就会终止<br>
+而这个git rebase &ndash;skip，其实就是跳过某次提交，所以合并到最后肯定会丢代码。😅慎用该指令哈。</li>
+</ol>
+<h2 id="参考">参考<a hidden class="anchor" aria-hidden="true" href="#参考">#</a></h2>
+<p>git reset: <a href="https://www.jianshu.com/p/c2ec5f06cf1a">https://www.jianshu.com/p/c2ec5f06cf1a</a><br>
+resolve conflicts: <a href="https://www.jetbrains.com/help/go/resolve-conflicts.html">https://www.jetbrains.com/help/go/resolve-conflicts.html</a><br>
+rebase和merge: <a href="https://waynerv.com/posts/git-rebase-intro/">https://waynerv.com/posts/git-rebase-intro/</a></p>
+
+
+        </div>
+
+        
+
+        <footer class="post-footer">
+            
+<nav class="paginav">
+  <a class="prev" href="https://zerlina-ysl.github.io/posts/read/cognitive_awakening5.4/">
+    <span class="title">« 上一页</span>
+    <br>
+    <span>认知觉醒</span>
+  </a>
+  <a class="next" href="https://zerlina-ysl.github.io/posts/blog/ubuntu_conf/">
+    <span class="title">下一页 »</span>
+    <br>
+    <span>ubuntu的apt-get镜像配置</span>
+  </a>
+</nav>
+
+        </footer>
+    </div>
+
+
+
+<div>
+    <div class="pagination__title">
+        <span class="pagination__title-h" style="font-size: 20px;">💬评论</span>
+        <hr />
+    </div>
+
+    <div id="tcomment"></div>
+
+    <script src="https://cdn.staticfile.org/twikoo/1.5.8/twikoo.all.min.js">
+    </script>
+    
+
+    
+
+    <script>
+        twikoo.init({
+            envId:  null , 
+            el: "#tcomment",
+            lang: 'zh-CN',
+            region:  null ,
+            path: window.TWIKOO_MAGIC_PATH||window.location.pathname,
+            
+            
+            
+            
+            
+            
+            
+        });
+    </script>
+
+</div>
+</article>
+</main>
+
+
+<script async src="https://unpkg.com/mermaid@8.8.1/dist/mermaid.min.js"></script>
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+<footer class="footer">
+    <span>
+        Copyright
+        &copy;
+        2022-2022
+        <a href="https://zerlina-ysl.github.io/" style="color:#939393;">xiaoli&#39;s Blog</a>
+        All Rights Reserved
+    </span>
+
+    <a href="https://beian.miit.gov.cn/" target="_blank" style="color:#939393;"></a>&nbsp;
+
+    <span>
+        <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=null"
+           style="display:inline-block;text-decoration:none;height:20px;color:#939393;">
+            <img src="" style="float:left;margin: 0px 5px 0px 0px;"/>
+            
+        </a>
+    </span>
+
+    <span id="busuanzi_container">
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+        总访客数: <span id="busuanzi_value_site_uv"></span>
+        总访问量: <span id="busuanzi_value_site_pv"></span>
+    </span>
+
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <span class="topInner">
+        <svg class="topSvg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+            <path d="M12 6H0l6-6z"/>
+        </svg>
+        <span id="read_progress"></span>
+    </span>
+</a>
+
+<script>
+    document.addEventListener('scroll', function (e) {
+        const readProgress = document.getElementById("read_progress");
+        const scrollHeight = document.documentElement.scrollHeight;
+        const clientHeight = document.documentElement.clientHeight;
+        const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+        
+        readProgress.innerText = ((scrollTop / (scrollHeight - clientHeight)).toFixed(2) * 100).toFixed(0);
+    })
+</script>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    let mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 400 || document.documentElement.scrollTop > 400) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+
+<script>
+    document.body.addEventListener('copy', function (e) {
+        if (window.getSelection().toString() && window.getSelection().toString().length > 50) {
+            let clipboardData = e.clipboardData || window.clipboardData;
+            if (clipboardData) {
+                e.preventDefault();
+                let htmlData = window.getSelection().toString() +
+                    '\r\n\n————————————————\r\n' +
+                    '版权声明：本文为「' + {
+                { .
+                    Site.Title
+                }
+            }
+                +'」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。' +
+                '\r\n原文链接：' + location.href;
+                let textData = window.getSelection().toString() +
+                    '\r\n\n————————————————\r\n' +
+                    '版权声明：本文为「' + {
+                { .
+                    Site.Title
+                }
+            }
+                +'」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。' +
+                '\r\n原文链接：' + location.href;
+                clipboardData.setData('text/html', htmlData);
+                clipboardData.setData('text/plain', textData);
+            }
+        }
+    });
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerText = '📄复制';
+
+        function copyingDone() {
+            copybutton.innerText = '👌🏻已复制!';
+            setTimeout(() => {
+                copybutton.innerText = '📄复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                let text = codeblock.textContent +
+                    '\r\n————————————————\r\n' +
+                    '版权声明：本文为「' + "xiaoli's Blog"
+                +'」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。' +
+                '\r\n原文链接：' + location.href;
+                navigator.clipboard.writeText(text);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) {
+            }
+            ;
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild === container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName === "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+
+<script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+<script>
+    $("code[class^=language] ").on("mouseover", function () {
+        if (this.clientWidth < this.scrollWidth) {
+            $(this).css("width", "135%")
+        }
+    }).on("mouseout", function () {
+        $(this).css("width", "100%")
+    })
+</script>
+</body>
+
+</html>

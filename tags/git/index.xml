@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>git on xiaoli&#39;s Blog</title>
+    <link>https://zerlina-ysl.github.io/tags/git/</link>
+    <description>Recent content in git on xiaoli&#39;s Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Mon, 14 Nov 2022 21:05:04 +0800</lastBuildDate><atom:link href="https://zerlina-ysl.github.io/tags/git/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>如何使用git rebase合并冲突</title>
+      <link>https://zerlina-ysl.github.io/posts/blog/git_rebase/</link>
+      <pubDate>Mon, 14 Nov 2022 21:05:04 +0800</pubDate>
+      
+      <guid>https://zerlina-ysl.github.io/posts/blog/git_rebase/</guid>
+      <description>会使用rebase master后我耀武扬威！</description>
+    </item>
+    
+  </channel>
+</rss>

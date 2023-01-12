@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>🧱 blog on xiaoli&#39;s Blog</title>
+    <link>https://zerlina-ysl.github.io/posts/blog/</link>
+    <description>Recent content in 🧱 blog on xiaoli&#39;s Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Sat, 19 Nov 2022 23:15:09 +0800</lastBuildDate><atom:link href="https://zerlina-ysl.github.io/posts/blog/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>自动化流水线如何构建项目</title>
+      <link>https://zerlina-ysl.github.io/posts/blog/how_bytecycle_run/</link>
+      <pubDate>Sat, 19 Nov 2022 23:15:09 +0800</pubDate>
+      
+      <guid>https://zerlina-ysl.github.io/posts/blog/how_bytecycle_run/</guid>
+      <description>对一次请求的全链路浅研究</description>
+    </item>
+    
+    <item>
+      <title>浅谈微服务架构</title>
+      <link>https://zerlina-ysl.github.io/posts/blog/microservice/</link>
+      <pubDate>Fri, 18 Nov 2022 23:06:45 +0800</pubDate>
+      
+      <guid>https://zerlina-ysl.github.io/posts/blog/microservice/</guid>
+      <description>微服务还有更多可能</description>
+    </item>
+    
+    <item>
+      <title>ubuntu的apt-get镜像配置</title>
+      <link>https://zerlina-ysl.github.io/posts/blog/ubuntu_conf/</link>
+      <pubDate>Tue, 01 Nov 2022 23:17:02 +0800</pubDate>
+      
+      <guid>https://zerlina-ysl.github.io/posts/blog/ubuntu_conf/</guid>
+      <description>使用ubuntu时的一些国内镜像/代理前置配置</description>
+    </item>
+    
+  </channel>
+</rss>

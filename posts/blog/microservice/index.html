@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>浅谈微服务架构 | xiaoli&#39;s Blog</title>
+<meta name="keywords" content="">
+<meta name="description" content="微服务还有更多可能">
+<meta name="author" content="
+作者:&nbsp;xiaoli">
+<link rel="canonical" href="https://zerlina-ysl.github.io/posts/blog/microservice/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.f65cf4cf8aa22bab2dbb865bfd6f9f15d1ff37f85e22230302420c60b956a77d.css" integrity="sha256-9lz0z4qiK6stu4Zb/W&#43;fFdH/N/heIiMDAkIMYLlWp30=" rel="preload stylesheet" as="style">
+<script defer crossorigin="anonymous" src="/assets/js/highlight.f413e19d0714851f6474e7ee9632408e58ac146fbdbe62747134bea2fa3415e0.js" integrity="sha256-9BPhnQcUhR9kdOfuljJAjlisFG&#43;9vmJ0cTS&#43;ovo0FeA="
+        onload="hljs.initHighlightingOnLoad();"></script>
+<link rel="icon" href="https://zerlina-ysl.github.io/img/r.jpeg">
+<link rel="icon" type="image/png" sizes="16x16" href="https://zerlina-ysl.github.io/img/r.jpeg">
+<link rel="icon" type="image/png" sizes="32x32" href="https://zerlina-ysl.github.io/img/r.jpeg">
+<link rel="apple-touch-icon" href="https://zerlina-ysl.github.io/img/r.jpeg">
+<link rel="mask-icon" href="https://zerlina-ysl.github.io/img/r.jpeg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --hljs-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = ""; 
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<link rel='stylesheet' href='https://cdn.staticfile.org/hack-font/3.3.0/web/hack.min.css'>
+<meta property="og:title" content="浅谈微服务架构" />
+<meta property="og:description" content="微服务还有更多可能" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://zerlina-ysl.github.io/posts/blog/microservice/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2022-11-18T23:06:45&#43;08:00" />
+<meta property="article:modified_time" content="2022-11-18T23:06:45&#43;08:00" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="浅谈微服务架构"/>
+<meta name="twitter:description" content="微服务还有更多可能"/>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "📚文章",
+      "item": "https://zerlina-ysl.github.io/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "🧱 blog",
+      "item": "https://zerlina-ysl.github.io/posts/blog/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "浅谈微服务架构",
+      "item": "https://zerlina-ysl.github.io/posts/blog/microservice/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "浅谈微服务架构",
+  "name": "浅谈微服务架构",
+  "description": "微服务还有更多可能",
+  "keywords": [
+    ""
+  ],
+  "articleBody": "是什么？ 微服务以专注于单一责任与功能的小型功能区块为基础，利用模块化组合出复杂的大型应用程序，各区块可以使用与语言无关的api相互通讯。 服务框架的构建是一个持续演进的过程。\n单体架构 最初的服务，如实现一个小说app，我们会把所有的功能都实现在一个程序，将各种功能按照高内聚低耦合的理念划分成多个模块(书成模块、登陆模块、书架模块等等…)。一个服务就是一个应用。\n随着访问量增多，服务器压力变大，为了支持业务发展，首先选择了最直接的方法—加机器。\n因此需要负载均衡来支持流量增长。所有的请求需要通过一层负载均衡，再打到最终的服务上。\n但随着业务的发展、产品的迭代，单体架构的缺陷愈发明显：\n所有功能高度耦合，互相影响，难以管理，团队合作受限 部分的逻辑修改也需要对整体服务进行开发和测试，采用瀑布式开发模型，开发周期长迭代慢。且需要影响全部服务的重建和部署，成本高 一个小bug可能会导致整个系统的崩溃\n因此，需要对单体架构进行解耦！ 面向服务 借助单体架构的功能划分，将单体架构划分为几个大的服务应用。 每个服务应用内部通过负载均衡横向扩展。 拆分后的每个服务应用创建自己的接口定义，以便被其他服务发现 服务之间的通讯类似于计租中的总线原理：通过一个独立的中间件提供消息通讯\n以上是简易版企业服务总线的初步设计，系统的所有流量通过通信总线进行路由分发。但随着流量的激增，通信总线会出现问题，通信总线成为了整个系统的中心化节点和瓶颈，影响了系统的扩展性和稳定性。 SOA 去中心化。\n对于通信总线分发流量而导致的问题，使用DNS+IP网络架构解决。\n域名：为每个服务定义一个psm(product.subsystem.module)作为服务的域名 IP：服务实例其实就是一个机器终端，拥有自己的ip地址 根服务器： 维护psm-\u003eip的映射，实现服务发现 服务注册：每个服务实例在创建后不断的向注册中心上报自己的地址(psm-ip)和实例状态 服务治理：注册中心维护着每个服务对应的实例地址列表及其健康状态 服务发现：实例定时向注册中心获取要访问的服务的实例地址，访问时通过负载均衡选择其中一个p2p来访问，流量不经由注册中心转发。负载均衡通过服务本身来实现。 通信协议：服务提供IDL文件，通过统一的rpc进行通信。 引入gateway将外部流量转换为内部请求。注册中心可以多实例部署，集群内部使用分布式算法保证其最终一致性。可以对服务进行更细粒度的拆分。\n至此，完成了微服务架构的设计：通过注册中心进行服务治理，使用一个rpc框架在实现服务注册、服务发现、负载均衡、熔断等功能。\n所谓云原生 云原生利用和发挥云平台的弹性和分布式优势，在云上构建和运行应用程序。\n2013年，docker横空出世，与微服务架构理念一拍即可。\n轻量级容器 统一的运行环境 快速部署 使用k8s进行容器编排，支持容器等快速部署和资源调度。\n虽然已经解决了单体架构很多问题，但是仍存在些问题：\n微服务框架向业务程序注入了许多与业务无关的代码，服务内部可能有许多微服务框架相关的并发线程，业务侵入性强。且开发语言的不统一也会给整个基础模块的维护和迭代带来巨大成本。\n解耦。从高内聚低耦合的原则出发，将与业务无关的逻辑从框架代码中抽出，以代理的模式作为业务程序的基础服务存在，服务可以更专注于业务逻辑。作为配合，保留一个轻量级框架作为业务应用和框架代理之间沟通的中间层。即sidecar。这部分程序的升级发布，除非是与rpc编解码相关，否则不需要业务代码任何变更，实现基础服务与业务服务的解耦。伴生容器会接管业务服务的所有对外流量进行处理和分发，业务服务对此无感知。\n更进一步，需要通过这一层sidecar对调用进行超时配置、接口监控、流量控制、权限控制等操作，会使用一个控制0中心为我们提供配置的能力，称为control plane。抽取的这一层sidecar模式部署的伴生容器部分，称为data plane(proxy、gateway)\n以上其实就是service mesh的设计。 FAQ 提出好的问题最重要\n问题1： 对于通信总线去中心化的这一步中，去中心化该怎么样理解？\n即不是所有的流量经过通信总线，对于注册中心可以多实例部署，并不依赖一个实例。\n追问： 但是注册中心中，流量也需要经过注册，否则如何拿到ip和其他注册信息哇？\n只需要定时去拉注册中心中的数据即可，拉取列表后数据就会存在于本地。\n追问： 注册中心可以部署多个实例，那通信总线可以吗？\n可以部署多个通信总线，但是所有流量还会经过通信总线。\n问题2：现在的sidecar是把agent打到业务的镜像中，是出于什么目的？一般sidecar会单独存在一个容器，业务程序所在容器和sidecar的容器进行跨容器通信。 公司主要有两个平台提供sidecar机制。servicemesh和tce sidecar。tce sidecar相当于是独立的容器，servicemesh是伴生容器，两个进程都运行在一个容器上。\n追问：公司主推的是伴生容器吗？\n他们的应用场景不同。sidecar是有sdk的维护，servicemesh将library移动到外部作为独立进程存在，希望在服务独立的同时保持相同的迭代节奏。tce sidecar只需要把k8s一个pod内启动多个紧密耦合共享资源的共处容器的能力封装出来提供给用户。\n问题3： 现在这套方式还存在什么缺点吗？\n服务过多，会有一些开销是用在rpc调用和不同服务之间的数据pack，需要尝试把服务部署到同一个集群来优化。从这个角度来讲，有没有可能有一些动态化组件，如faas，现在的faas更多用在消息的消费上，假设接口放在faas上，在调用接口时将函数拉到本地，使用动态组装可以避免跨网络的调用。\n",
+  "wordCount" : "2327",
+  "inLanguage": "en",
+  "datePublished": "2022-11-18T23:06:45+08:00",
+  "dateModified": "2022-11-18T23:06:45+08:00",
+  "author":[{
+    "@type": "Person",
+    "name": "xiaoli"
+  }],
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://zerlina-ysl.github.io/posts/blog/microservice/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "xiaoli's Blog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://zerlina-ysl.github.io/img/r.jpeg"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+
+
+<script async src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://zerlina-ysl.github.io/" accesskey="h" title="xiaoli&#39;s Blog (Alt + H)">
+            <img src="https://zerlina-ysl.github.io/img/e.jpeg" alt="logo" aria-label="logo"
+                 height="35">xiaoli&#39;s Blog</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://zerlina-ysl.github.io/search" title="🔍 (Alt &#43; /)" accesskey=/>
+                <span>🔍</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://zerlina-ysl.github.io/" title="🏠">
+                <span>🏠</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://zerlina-ysl.github.io/tags" title="🧩">
+                <span>🧩</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://zerlina-ysl.github.io/archives/" title="⏱️">
+                <span>⏱️</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://zerlina-ysl.github.io/about" title="🙋🏻‍♂️">
+                <span>🙋🏻‍♂️</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main page">
+<article class="post-single">
+    <div id="single-content">
+        <header class="post-header">
+            <div class="breadcrumbs"><a href="https://zerlina-ysl.github.io/">主页</a>&nbsp;»&nbsp;<a href="https://zerlina-ysl.github.io/posts/">📚文章</a>&nbsp;»&nbsp;<a href="https://zerlina-ysl.github.io/posts/blog/">🧱 blog</a></div>
+            <h1 class="post-title">
+                浅谈微服务架构
+            </h1>
+            <div class="post-description">
+                微服务还有更多可能
+            </div>
+            <div class="post-meta">
+
+
+
+
+
+创建:&nbsp;<span title='2022-11-18 23:06:45 +0800 CST'>2022-11-18</span>&nbsp;|&nbsp;更新:&nbsp;2022-11-18&nbsp;|&nbsp;字数:&nbsp;2327字&nbsp;|&nbsp;时长:&nbsp;5分钟&nbsp;|&nbsp;
+作者:&nbsp;xiaoli
+
+
+
+                &nbsp;|&nbsp;标签: &nbsp;
+                <ul class="post-tags-meta">
+                    <a href="https://zerlina-ysl.github.io/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/">微服务</a>
+                </ul>
+
+                
+                <span id="busuanzi_container_page_pv">
+                &nbsp;| 访问: <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+</div>
+        </header> 
+        <aside id="toc-container" class="toc-container wide">
+    <div class="toc">
+        <details  open>
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">文章目录</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#%e6%98%af%e4%bb%80%e4%b9%88" aria-label="是什么？">是什么？</a></li>
+                <li>
+                    <a href="#%e5%8d%95%e4%bd%93%e6%9e%b6%e6%9e%84" aria-label="单体架构">单体架构</a></li>
+                <li>
+                    <a href="#%e9%9d%a2%e5%90%91%e6%9c%8d%e5%8a%a1" aria-label="面向服务">面向服务</a></li>
+                <li>
+                    <a href="#soa" aria-label="SOA">SOA</a></li>
+                <li>
+                    <a href="#%e6%89%80%e8%b0%93%e4%ba%91%e5%8e%9f%e7%94%9f" aria-label="所谓云原生">所谓云原生</a></li>
+                <li>
+                    <a href="#faq" aria-label="FAQ">FAQ</a>
+                </li>
+            </ul>
+        </div>
+        </details>
+    </div>
+</aside>
+<script>
+    let activeElement;
+    let elements;
+    window.addEventListener('DOMContentLoaded', function (event) {
+        checkTocPosition();
+
+        elements = document.querySelectorAll('h1[id],h2[id],h3[id],h4[id],h5[id],h6[id]');
+        
+        activeElement = elements[0];
+        const id = encodeURI(activeElement.getAttribute('id')).toLowerCase();
+        document.querySelector(`.inner ul li a[href="#${id}"]`).classList.add('active');
+    }, false);
+
+    window.addEventListener('resize', function(event) {
+        checkTocPosition();
+    }, false);
+
+    window.addEventListener('scroll', () => {
+        
+        activeElement = Array.from(elements).find((element) => {
+            if ((getOffsetTop(element) - window.pageYOffset) > 0 &&
+                (getOffsetTop(element) - window.pageYOffset) < window.innerHeight/2) {
+                return element;
+            }
+        }) || activeElement
+
+        elements.forEach(element => {
+            const id = encodeURI(element.getAttribute('id')).toLowerCase();
+            if (element === activeElement){
+                document.querySelector(`.inner ul li a[href="#${id}"]`).classList.add('active');
+            } else {
+                document.querySelector(`.inner ul li a[href="#${id}"]`).classList.remove('active');
+            }
+        })
+    }, false);
+
+    const main = parseInt(getComputedStyle(document.body).getPropertyValue('--article-width'), 10);
+    const toc = parseInt(getComputedStyle(document.body).getPropertyValue('--toc-width'), 10);
+    const gap = parseInt(getComputedStyle(document.body).getPropertyValue('--gap'), 10);
+
+    function checkTocPosition() {
+        const width = document.body.scrollWidth;
+
+        if (width - main - (toc * 2) - (gap * 4) > 0) {
+            document.getElementById("toc-container").classList.add("wide");
+        } else {
+            document.getElementById("toc-container").classList.remove("wide");
+        }
+    }
+
+    function getOffsetTop(element) {
+        if (!element.getClientRects().length) {
+            return 0;
+        }
+        let rect = element.getBoundingClientRect();
+        let win = element.ownerDocument.defaultView;
+        return rect.top + win.pageYOffset;
+    }
+</script>
+        
+        <div class="post-content"><h2 id="是什么">是什么？<a hidden class="anchor" aria-hidden="true" href="#是什么">#</a></h2>
+<p>微服务以专注于单一责任与功能的小型功能区块为基础，利用模块化组合出复杂的大型应用程序，各区块可以使用与语言无关的api相互通讯。 服务框架的构建是一个持续演进的过程。</p>
+<h2 id="单体架构">单体架构<a hidden class="anchor" aria-hidden="true" href="#单体架构">#</a></h2>
+<p>最初的服务，如实现一个小说app，我们会把所有的功能都实现在一个程序，将各种功能按照高内聚低耦合的理念划分成多个模块(书成模块、登陆模块、书架模块等等…)。一个服务就是一个应用。<br>
+随着访问量增多，服务器压力变大，为了支持业务发展，首先选择了最直接的方法—加机器。<br>
+因此需要负载均衡来支持流量增长。所有的请求需要通过一层负载均衡，再打到最终的服务上。<br>
+但随着业务的发展、产品的迭代，单体架构的缺陷愈发明显：</p>
+<ul>
+<li>所有功能高度耦合，互相影响，难以管理，团队合作受限</li>
+<li>部分的逻辑修改也需要对整体服务进行开发和测试，采用瀑布式开发模型，开发周期长迭代慢。且需要影响全部服务的重建和部署，成本高</li>
+<li>一个小bug可能会导致整个系统的崩溃<br>
+因此，需要对单体架构进行解耦！</li>
+</ul>
+<h2 id="面向服务">面向服务<a hidden class="anchor" aria-hidden="true" href="#面向服务">#</a></h2>
+<ul>
+<li>借助单体架构的功能划分，将单体架构划分为几个大的服务应用。</li>
+<li>每个服务应用内部通过负载均衡横向扩展。</li>
+<li>拆分后的每个服务应用创建自己的接口定义，以便被其他服务发现</li>
+<li>服务之间的通讯类似于计租中的总线原理：通过一个独立的中间件提供消息通讯<br>
+以上是简易版企业服务总线的初步设计，系统的所有流量通过通信总线进行路由分发。但随着流量的激增，通信总线会出现问题，通信总线成为了整个系统的中心化节点和瓶颈，影响了系统的扩展性和稳定性。</li>
+</ul>
+<h2 id="soa">SOA<a hidden class="anchor" aria-hidden="true" href="#soa">#</a></h2>
+<p><strong>去中心化</strong>。</p>
+<p>对于通信总线分发流量而导致的问题，使用DNS+IP网络架构解决。</p>
+<ul>
+<li>域名：为每个服务定义一个psm(product.subsystem.module)作为服务的域名</li>
+<li>IP：服务实例其实就是一个机器终端，拥有自己的ip地址</li>
+<li>根服务器： 维护psm-&gt;ip的映射，实现服务发现</li>
+<li>服务注册：每个服务实例在创建后不断的向注册中心上报自己的地址(psm-ip)和实例状态</li>
+<li>服务治理：注册中心维护着每个服务对应的实例地址列表及其健康状态</li>
+<li>服务发现：实例定时向注册中心获取要访问的服务的实例地址，访问时通过负载均衡选择其中一个p2p来访问，流量不经由注册中心转发。负载均衡通过服务本身来实现。</li>
+<li>通信协议：服务提供IDL文件，通过统一的rpc进行通信。</li>
+</ul>
+<p>引入gateway将外部流量转换为内部请求。注册中心可以多实例部署，集群内部使用分布式算法保证其最终一致性。可以对服务进行更细粒度的拆分。<br>
+至此，完成了微服务架构的设计：通过注册中心进行服务治理，使用一个rpc框架在实现服务注册、服务发现、负载均衡、熔断等功能。</p>
+<h2 id="所谓云原生">所谓云原生<a hidden class="anchor" aria-hidden="true" href="#所谓云原生">#</a></h2>
+<p>云原生利用和发挥云平台的弹性和分布式优势，在云上构建和运行应用程序。</p>
+<p>2013年，docker横空出世，与微服务架构理念一拍即可。</p>
+<ul>
+<li>轻量级容器</li>
+<li>统一的运行环境</li>
+<li>快速部署 使用k8s进行容器编排，支持容器等快速部署和资源调度。<br>
+<img loading="lazy" src="cloudnative.png" alt=""  />
+</li>
+</ul>
+<p>虽然已经解决了单体架构很多问题，但是仍存在些问题：</p>
+<p>微服务框架向业务程序注入了许多与业务无关的代码，服务内部可能有许多微服务框架相关的并发线程，业务侵入性强。且开发语言的不统一也会给整个基础模块的维护和迭代带来巨大成本。</p>
+<p><strong>解耦</strong>。从高内聚低耦合的原则出发，将与业务无关的逻辑从框架代码中抽出，以代理的模式作为业务程序的基础服务存在，服务可以更专注于业务逻辑。作为配合，保留一个轻量级框架作为业务应用和框架代理之间沟通的中间层。即sidecar。这部分程序的升级发布，除非是与rpc编解码相关，否则不需要业务代码任何变更，实现基础服务与业务服务的解耦。伴生容器会接管业务服务的所有对外流量进行处理和分发，业务服务对此无感知。<br>
+更进一步，需要通过这一层sidecar对调用进行超时配置、接口监控、流量控制、权限控制等操作，会使用一个控制0中心为我们提供配置的能力，称为control plane。抽取的这一层sidecar模式部署的伴生容器部分，称为data plane(proxy、gateway)<br>
+以上其实就是service mesh的设计。<img loading="lazy" src="servicemesh.png" alt=""  />
+</p>
+<h2 id="faq">FAQ<a hidden class="anchor" aria-hidden="true" href="#faq">#</a></h2>
+<blockquote>
+<p>提出好的问题最重要</p>
+</blockquote>
+<p><strong>问题1</strong>： 对于通信总线去中心化的这一步中，去中心化该怎么样理解？<br>
+即不是所有的流量经过通信总线，对于注册中心可以多实例部署，并不依赖一个实例。</p>
+<p><strong>追问</strong>： 但是注册中心中，流量也需要经过注册，否则如何拿到ip和其他注册信息哇？<br>
+只需要定时去拉注册中心中的数据即可，拉取列表后数据就会存在于本地。</p>
+<p><strong>追问</strong>： 注册中心可以部署多个实例，那通信总线可以吗？<br>
+可以部署多个通信总线，但是所有流量还会经过通信总线。</p>
+<p><strong>问题2</strong>：现在的sidecar是把agent打到业务的镜像中，是出于什么目的？一般sidecar会单独存在一个容器，业务程序所在容器和sidecar的容器进行跨容器通信。 公司主要有两个平台提供sidecar机制。servicemesh和tce sidecar。tce sidecar相当于是独立的容器，servicemesh是伴生容器，两个进程都运行在一个容器上。</p>
+<p><strong>追问</strong>：公司主推的是伴生容器吗？<br>
+他们的应用场景不同。sidecar是有sdk的维护，servicemesh将library移动到外部作为独立进程存在，希望在服务独立的同时保持相同的迭代节奏。tce sidecar只需要把k8s一个pod内启动多个紧密耦合共享资源的共处容器的能力封装出来提供给用户。</p>
+<p><strong>问题3</strong>： 现在这套方式还存在什么缺点吗？<br>
+服务过多，会有一些开销是用在rpc调用和不同服务之间的数据pack，需要尝试把服务部署到同一个集群来优化。从这个角度来讲，有没有可能有一些动态化组件，如faas，现在的faas更多用在消息的消费上，假设接口放在faas上，在调用接口时将函数拉到本地，使用动态组装可以避免跨网络的调用。</p>
+
+
+        </div>
+        
+
+        <footer class="post-footer">
+            
+<nav class="paginav">
+  <a class="prev" href="https://zerlina-ysl.github.io/posts/blog/how_bytecycle_run/">
+    <span class="title">« 上一页</span>
+    <br>
+    <span>自动化流水线如何构建项目</span>
+  </a>
+  <a class="next" href="https://zerlina-ysl.github.io/posts/blog/ubuntu_conf/">
+    <span class="title">下一页 »</span>
+    <br>
+    <span>ubuntu的apt-get镜像配置</span>
+  </a>
+</nav>
+
+        </footer>
+    </div>
+
+
+
+<div>
+    <div class="pagination__title">
+        <span class="pagination__title-h" style="font-size: 20px;">💬评论</span>
+        <hr />
+    </div>
+
+    <div id="tcomment"></div>
+
+    <script src="https://cdn.staticfile.org/twikoo/1.5.8/twikoo.all.min.js">
+    </script>
+    
+
+    
+
+    <script>
+        twikoo.init({
+            envId:  null , 
+            el: "#tcomment",
+            lang: 'zh-CN',
+            region:  null ,
+            path: window.TWIKOO_MAGIC_PATH||window.location.pathname,
+            
+            
+            
+            
+            
+            
+            
+        });
+    </script>
+
+</div>
+</article>
+</main>
+
+
+<script async src="https://unpkg.com/mermaid@8.8.1/dist/mermaid.min.js"></script>
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+<footer class="footer">
+    <span>
+        Copyright
+        &copy;
+        2022-2023
+        <a href="https://zerlina-ysl.github.io/" style="color:#939393;">xiaoli&#39;s Blog</a>
+        All Rights Reserved
+    </span>
+
+    <a href="https://beian.miit.gov.cn/" target="_blank" style="color:#939393;"></a>&nbsp;
+
+    <span>
+        <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=null"
+           style="display:inline-block;text-decoration:none;height:20px;color:#939393;">
+            <img src="" style="float:left;margin: 0px 5px 0px 0px;"/>
+            
+        </a>
+    </span>
+
+    <span id="busuanzi_container">
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+        总访客数: <span id="busuanzi_value_site_uv"></span>
+        总访问量: <span id="busuanzi_value_site_pv"></span>
+    </span>
+
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <span class="topInner">
+        <svg class="topSvg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+            <path d="M12 6H0l6-6z"/>
+        </svg>
+        <span id="read_progress"></span>
+    </span>
+</a>
+
+<script>
+    document.addEventListener('scroll', function (e) {
+        const readProgress = document.getElementById("read_progress");
+        const scrollHeight = document.documentElement.scrollHeight;
+        const clientHeight = document.documentElement.clientHeight;
+        const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+        
+        readProgress.innerText = ((scrollTop / (scrollHeight - clientHeight)).toFixed(2) * 100).toFixed(0);
+    })
+</script>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    let mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 400 || document.documentElement.scrollTop > 400) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+
+<script>
+    document.body.addEventListener('copy', function (e) {
+        if (window.getSelection().toString() && window.getSelection().toString().length > 50) {
+            let clipboardData = e.clipboardData || window.clipboardData;
+            if (clipboardData) {
+                e.preventDefault();
+                let htmlData = window.getSelection().toString() +
+                    '\r\n\n————————————————\r\n' +
+                    '版权声明：本文为「' + {
+                { .
+                    Site.Title
+                }
+            }
+                +'」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。' +
+                '\r\n原文链接：' + location.href;
+                let textData = window.getSelection().toString() +
+                    '\r\n\n————————————————\r\n' +
+                    '版权声明：本文为「' + {
+                { .
+                    Site.Title
+                }
+            }
+                +'」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。' +
+                '\r\n原文链接：' + location.href;
+                clipboardData.setData('text/html', htmlData);
+                clipboardData.setData('text/plain', textData);
+            }
+        }
+    });
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerText = '📄复制';
+
+        function copyingDone() {
+            copybutton.innerText = '👌🏻已复制!';
+            setTimeout(() => {
+                copybutton.innerText = '📄复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                let text = codeblock.textContent +
+                    '\r\n————————————————\r\n' +
+                    '版权声明：本文为「' + "xiaoli's Blog"
+                +'」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。' +
+                '\r\n原文链接：' + location.href;
+                navigator.clipboard.writeText(text);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) {
+            }
+            ;
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild === container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName === "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+
+<script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+<script>
+    $("code[class^=language] ").on("mouseover", function () {
+        if (this.clientWidth < this.scrollWidth) {
+            $(this).css("width", "135%")
+        }
+    }).on("mouseout", function () {
+        $(this).css("width", "100%")
+    })
+</script>
+</body>
+
+</html>
